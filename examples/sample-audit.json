@@ -1,0 +1,442 @@
+{
+  "target": "https://example-blog.com",
+  "audit_type": "pre-application",
+  "site_verdict": "NOT_READY",
+  "findings": [
+    {
+      "id": "OWN-01",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.95,
+        "evd": 0.9,
+        "cer": 0.95,
+        "imp": 0.7,
+        "fix": 0.9
+      },
+      "issue": "Site is verified in AdSense account",
+      "evidence": "Ownership confirmed via meta tag present in <head>",
+      "basis": "requirements.md OWN-01",
+      "fix": ""
+    },
+    {
+      "id": "OWN-02",
+      "verdict": "BLOCKER",
+      "v": {
+        "cmp": 0.0,
+        "evd": 0.95,
+        "cer": 0.9,
+        "imp": 0.1,
+        "fix": 0.7
+      },
+      "issue": "robots.txt disallows Mediapartners-Google, blocking the AdSense crawler entirely",
+      "evidence": "GET /robots.txt line 3: \"User-agent: Mediapartners-Google\" then \"Disallow: /\"",
+      "basis": "requirements.md OWN-02",
+      "fix": "Remove the Mediapartners-Google Disallow block or add \"Allow: /\" for that user-agent"
+    },
+    {
+      "id": "OWN-03",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.9,
+        "evd": 0.85,
+        "cer": 0.85,
+        "imp": 0.6,
+        "fix": 0.8
+      },
+      "issue": "Primary content pages return HTTP 200 and render without login",
+      "evidence": "Sampled 5 article URLs, all 200, content present in initial HTML",
+      "basis": "requirements.md OWN-03",
+      "fix": ""
+    },
+    {
+      "id": "OWN-04",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.95,
+        "evd": 0.9,
+        "cer": 0.9,
+        "imp": 0.7,
+        "fix": 0.9
+      },
+      "issue": "Site is on a controlled domain that can host ads.txt",
+      "evidence": "ads.txt reachable at /ads.txt with HTTP 200",
+      "basis": "requirements.md OWN-04",
+      "fix": ""
+    },
+    {
+      "id": "OWN-05",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.9,
+        "evd": 0.7,
+        "cer": 0.8,
+        "imp": 0.6,
+        "fix": 0.9
+      },
+      "issue": "No sanctions/geoblock barrier detected for the site region",
+      "evidence": "Site serves from a non-sanctioned region; no geoblock headers observed",
+      "basis": "requirements.md OWN-05",
+      "fix": ""
+    },
+    {
+      "id": "CNT-01",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.8,
+        "evd": 0.75,
+        "cer": 0.7,
+        "imp": 0.5,
+        "fix": 0.7
+      },
+      "issue": "Substantial original articles of genuine value present",
+      "evidence": "~40 long-form posts, each 800+ words with original analysis",
+      "basis": "requirements.md CNT-01",
+      "fix": ""
+    },
+    {
+      "id": "CNT-02",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.85,
+        "evd": 0.8,
+        "cer": 0.8,
+        "imp": 0.4,
+        "fix": 0.7
+      },
+      "issue": "Content appears original, not scraped",
+      "evidence": "Spot-checked 6 posts against search; no matching duplicate sources found",
+      "basis": "requirements.md CNT-02",
+      "fix": ""
+    },
+    {
+      "id": "CNT-03",
+      "verdict": "MEDIUM",
+      "v": {
+        "cmp": 0.6,
+        "evd": 0.6,
+        "cer": 0.6,
+        "imp": 0.6,
+        "fix": 0.6
+      },
+      "issue": "A few posts read as lightly-edited AI output with limited editorial value",
+      "evidence": "3 of 40 posts show generic structure and no author perspective",
+      "basis": "requirements.md CNT-03",
+      "fix": "Add original insight/editorial voice to the flagged posts or remove them"
+    },
+    {
+      "id": "CNT-04",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.95,
+        "evd": 0.95,
+        "cer": 0.95,
+        "imp": 0.7,
+        "fix": 0.9
+      },
+      "issue": "Primary content is in English, an AdSense-supported language",
+      "evidence": "All sampled pages are English",
+      "basis": "requirements.md CNT-04",
+      "fix": ""
+    },
+    {
+      "id": "CNT-05",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.85,
+        "evd": 0.8,
+        "cer": 0.8,
+        "imp": 0.6,
+        "fix": 0.7
+      },
+      "issue": "Site is substantially complete with no under-construction sections",
+      "evidence": "All nav categories populated; no empty or placeholder pages found",
+      "basis": "requirements.md CNT-05",
+      "fix": ""
+    },
+    {
+      "id": "CNT-06",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.9,
+        "evd": 0.8,
+        "cer": 0.85,
+        "imp": 0.75,
+        "fix": 0.8
+      },
+      "issue": "Content is original text, not embed-only pages",
+      "evidence": "Articles are self-hosted text, not wrapped third-party embeds",
+      "basis": "requirements.md CNT-06",
+      "fix": ""
+    },
+    {
+      "id": "POL-01",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.95,
+        "evd": 0.85,
+        "cer": 0.9,
+        "imp": 0.2,
+        "fix": 0.9
+      },
+      "issue": "No illegal content observed",
+      "evidence": "Content is technology tutorials; nothing illegal found",
+      "basis": "requirements.md POL-01",
+      "fix": ""
+    },
+    {
+      "id": "POL-02",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.9,
+        "evd": 0.8,
+        "cer": 0.85,
+        "imp": 0.3,
+        "fix": 0.8
+      },
+      "issue": "No infringing or counterfeit content",
+      "evidence": "Images appear licensed/original; no counterfeit offers",
+      "basis": "requirements.md POL-02",
+      "fix": ""
+    },
+    {
+      "id": "POL-03",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.95,
+        "evd": 0.9,
+        "cer": 0.9,
+        "imp": 0.2,
+        "fix": 0.95
+      },
+      "issue": "No sexually explicit content",
+      "evidence": "Content is safe-for-work throughout sampled pages",
+      "basis": "requirements.md POL-03",
+      "fix": ""
+    },
+    {
+      "id": "POL-04",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.95,
+        "evd": 0.9,
+        "cer": 0.9,
+        "imp": 0.2,
+        "fix": 0.95
+      },
+      "issue": "No hateful or harassing content",
+      "evidence": "No derogatory content toward protected groups found",
+      "basis": "requirements.md POL-04",
+      "fix": ""
+    },
+    {
+      "id": "POL-05",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.9,
+        "evd": 0.8,
+        "cer": 0.85,
+        "imp": 0.2,
+        "fix": 0.9
+      },
+      "issue": "No malware or unwanted software distribution",
+      "evidence": "No suspicious downloads; site scanned clean",
+      "basis": "requirements.md POL-05",
+      "fix": ""
+    },
+    {
+      "id": "POL-06",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.95,
+        "evd": 0.85,
+        "cer": 0.9,
+        "imp": 0.5,
+        "fix": 0.9
+      },
+      "issue": "No dangerous-products content",
+      "evidence": "No weapons/drugs content present",
+      "basis": "requirements.md POL-06",
+      "fix": ""
+    },
+    {
+      "id": "POL-07",
+      "verdict": "NA",
+      "v": {
+        "cmp": 0.5,
+        "evd": 0.7,
+        "cer": 0.8,
+        "imp": 0.8,
+        "fix": 1.0
+      },
+      "issue": "No restricted categories present on this site",
+      "evidence": "Site has no alcohol/gambling/adult-health content",
+      "basis": "requirements.md POL-07",
+      "fix": ""
+    },
+    {
+      "id": "POL-08",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.85,
+        "evd": 0.75,
+        "cer": 0.8,
+        "imp": 0.5,
+        "fix": 0.7
+      },
+      "issue": "No misleading or deceptive claims found",
+      "evidence": "Technical claims are accurate and sourced",
+      "basis": "requirements.md POL-08",
+      "fix": ""
+    },
+    {
+      "id": "DIS-01",
+      "verdict": "HIGH",
+      "v": {
+        "cmp": 0.2,
+        "evd": 0.9,
+        "cer": 0.85,
+        "imp": 0.35,
+        "fix": 0.85
+      },
+      "issue": "Privacy policy does not disclose Google/third-party ad cookies or data use",
+      "evidence": "/privacy exists but contains no mention of advertising cookies or Google data processing",
+      "basis": "requirements.md DIS-01",
+      "fix": "Add a section disclosing third-party ad cookies and Google data use per AdSense privacy requirements"
+    },
+    {
+      "id": "DIS-02",
+      "verdict": "MEDIUM",
+      "v": {
+        "cmp": 0.5,
+        "evd": 0.7,
+        "cer": 0.7,
+        "imp": 0.7,
+        "fix": 0.9
+      },
+      "issue": "About page present but no Contact information",
+      "evidence": "/about exists; no contact email or form found anywhere on site",
+      "basis": "requirements.md DIS-02",
+      "fix": "Add a Contact page or visible contact email"
+    },
+    {
+      "id": "DIS-03",
+      "verdict": "UNKNOWN",
+      "v": {
+        "cmp": 0.3,
+        "evd": 0.3,
+        "cer": 0.4,
+        "imp": 0.4,
+        "fix": 0.7
+      },
+      "issue": "Cannot verify EU consent mechanism from available access",
+      "evidence": "No consent banner observed, but visitor region and CMP config are unknown",
+      "basis": "requirements.md DIS-03",
+      "fix": "Confirm whether EU traffic is served; if so, deploy a compliant consent mechanism"
+    },
+    {
+      "id": "DIS-04",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.85,
+        "evd": 0.8,
+        "cer": 0.8,
+        "imp": 0.7,
+        "fix": 0.8
+      },
+      "issue": "Navigation is clear and content is reachable",
+      "evidence": "Header nav links to all categories; no broken menu items",
+      "basis": "requirements.md DIS-04",
+      "fix": ""
+    },
+    {
+      "id": "IMP-01",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.9,
+        "evd": 0.6,
+        "cer": 0.7,
+        "imp": 0.15,
+        "fix": 0.9
+      },
+      "issue": "No evidence of invalid traffic or self-clicks",
+      "evidence": "Site has no ads yet (pre-application); nothing to inflate",
+      "basis": "requirements.md IMP-01",
+      "fix": ""
+    },
+    {
+      "id": "IMP-02",
+      "verdict": "NA",
+      "v": {
+        "cmp": 0.5,
+        "evd": 0.7,
+        "cer": 0.8,
+        "imp": 0.6,
+        "fix": 1.0
+      },
+      "issue": "No AdSense code present yet",
+      "evidence": "Pre-application; no ad code to modify",
+      "basis": "requirements.md IMP-02",
+      "fix": ""
+    },
+    {
+      "id": "IMP-03",
+      "verdict": "NA",
+      "v": {
+        "cmp": 0.5,
+        "evd": 0.7,
+        "cer": 0.8,
+        "imp": 0.6,
+        "fix": 1.0
+      },
+      "issue": "No ads placed yet",
+      "evidence": "Pre-application; no ad placement to evaluate",
+      "basis": "requirements.md IMP-03",
+      "fix": ""
+    },
+    {
+      "id": "IMP-04",
+      "verdict": "PASS",
+      "v": {
+        "cmp": 0.8,
+        "evd": 0.6,
+        "cer": 0.7,
+        "imp": 0.7,
+        "fix": 0.8
+      },
+      "issue": "Content is not overwhelmed by ads/affiliate blocks",
+      "evidence": "Minimal affiliate links, well below content-value threshold",
+      "basis": "requirements.md IMP-04",
+      "fix": ""
+    },
+    {
+      "id": "IMP-05",
+      "verdict": "MEDIUM",
+      "v": {
+        "cmp": 0.5,
+        "evd": 0.85,
+        "cer": 0.8,
+        "imp": 0.75,
+        "fix": 0.9
+      },
+      "issue": "ads.txt is present but does not yet authorize Google as a seller",
+      "evidence": "/ads.txt exists but contains only a placeholder comment, no google.com line",
+      "basis": "requirements.md IMP-05",
+      "fix": "Add the Google authorization line to ads.txt once you have your pub-XXXX ID"
+    },
+    {
+      "id": "IMP-06",
+      "verdict": "NA",
+      "v": {
+        "cmp": 0.5,
+        "evd": 0.7,
+        "cer": 0.8,
+        "imp": 0.6,
+        "fix": 1.0
+      },
+      "issue": "No ads placed on any page yet",
+      "evidence": "Pre-application; no ad placement on non-content pages to check",
+      "basis": "requirements.md IMP-06",
+      "fix": ""
+    }
+  ]
+}
