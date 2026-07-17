@@ -117,13 +117,13 @@ def validate_record(rec, errors):
     elif not fixv.strip() and verdict not in ("PASS", "NA"):
         _err(errors, f"{rid}: field 'fix' may be empty only when verdict is PASS or NA")
 
-    # vector/verdict coherence
+    # vector/verdict coherence: PASS owns [0.5, 1.0], BLOCKER owns [0.0, 0.5) — no overlap
     cmp = v.get("cmp")
     if isinstance(cmp, (int, float)) and not isinstance(cmp, bool):
         if verdict == "PASS" and float(cmp) < 0.5:
             _err(errors, f"{rid}: verdict PASS but compliance cmp={cmp} < 0.5")
-        if verdict == "BLOCKER" and float(cmp) > 0.5:
-            _err(errors, f"{rid}: verdict BLOCKER but compliance cmp={cmp} > 0.5")
+        if verdict == "BLOCKER" and float(cmp) >= 0.5:
+            _err(errors, f"{rid}: verdict BLOCKER but compliance cmp={cmp} >= 0.5")
 
 
 def check_report(report_path):
@@ -266,6 +266,23 @@ def selftest():
     ok, msgs = check_report(tmp)
     assert not ok and any("contradicts" in m for m in msgs), "barrier consistency not enforced"
     print("[selftest] site verdict contradicting a BLOCKER correctly rejected")
+
+    # cmp exactly 0.5 belongs to PASS; a BLOCKER claiming it must be rejected
+    full = json.loads(make_template())
+    for rec in full["findings"]:
+        rec["verdict"] = "PASS"
+        rec["v"] = {"cmp": 0.9, "evd": 0.9, "cer": 0.9, "imp": 0.8, "fix": 0.9}
+        rec["issue"] = "x"; rec["evidence"] = "x"; rec["basis"] = "x"; rec["fix"] = ""
+    full["findings"][0]["v"]["cmp"] = 0.5  # PASS with cmp=0.5 is legal
+    full["findings"][1]["verdict"] = "BLOCKER"
+    full["findings"][1]["v"]["cmp"] = 0.5  # BLOCKER with cmp=0.5 is not
+    full["findings"][1]["fix"] = "fix it"
+    full["site_verdict"] = "NOT_READY"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(full, f)
+    ok, msgs = check_report(tmp)
+    assert not ok and any("cmp=0.5 >= 0.5" in m for m in msgs), "cmp=0.5 boundary not exclusive"
+    print("[selftest] cmp=0.5 boundary is exclusive (PASS side), BLOCKER at 0.5 rejected")
 
     os.remove(tmp)
     print("[selftest] ALL PASSED")

@@ -83,6 +83,8 @@ validator/
   audit_validator.py           完整性闸门 + schema 校验(纯标准库,零依赖)
 examples/
   sample-audit.json            一份通过校验的完整审核报告
+scripts/
+  build.sh                     打包发行 zip(产物在 dist/,不入库)
 ARCHITECTURE.md                技术架构与设计理念(给开发者)
 ```
 
