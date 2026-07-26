@@ -143,16 +143,13 @@ pip install mcp
 
 ### 在 Cursor / Windsurf / Antigravity / VS Code 中添加配置：
 
-在你的编辑器 MCP 配置文件（如 `~/.cursor/mcp.json` 或 AI 编辑器的 MCP 设置界面）中加入：
+在你的编辑器 MCP 配置文件（如 `~/.cursor/mcp.json` 或 AI 编辑器的 MCP 设置界面）中加入，可以使用快捷启动脚本 `run_mcp.sh`（推荐，支持依赖自动检测与安装）：
 
 ```json
 {
   "mcpServers": {
     "adsense-auditor": {
-      "command": "python3",
-      "args": [
-        "/Users/your_username/Projects/iLang-Adsense-Auditor/mcp_server.py"
-      ]
+      "command": "/Users/your_username/Projects/iLang-Adsense-Auditor/run_mcp.sh"
     }
   }
 }
