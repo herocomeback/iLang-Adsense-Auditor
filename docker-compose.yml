@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ilang-adsense-auditor-mcp:latest
+    container_name: ilang_adsense_mcp
+    stdin_open: true
+    volumes:
+      # 挂载当前工程与项目文件
+      - .:/app
+    # 设置工作目录
+    working_dir: /app
