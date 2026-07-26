@@ -1,0 +1,24 @@
+---
+description: 用 iLang AdSense Auditor (MCP + Skill) 审核项目是否具备申请 Google AdSense 的条件并自动修复代码
+globs: *
+---
+
+# iLang AdSense Auditor — Rule Guide
+
+当用户希望诊断、评估或修改当前项目是否符合 Google AdSense 申请条件时，遵循本规则：
+
+## 1. 核心评估流程
+1. 优先调用 MCP 工具 `audit_project(project_path="<当前项目路径>")` 获取静态证据预查结果及 29 项报告模版。
+2. 严格对照 `skill/references/requirements.md` 中的 29 条规则（`OWN-01` ~ `IMP-06`），逐一得出五个维度的判断向量 `AUDIT_JUDGE_v1`（`cmp`, `evd`, `cer`, `imp`, `fix`）。
+3. 遵循**屏障规则（Barrier Principle）**推导站点结论：
+   - 存在任何 `BLOCKER` 否决项 ➡️ 站点结论必须为 `NOT_READY`。
+   - 无 `BLOCKER` 但有 `HIGH`/`MEDIUM`/`UNKNOWN` ➡️ `READY_AFTER_FIXES`。
+   - 全部通过 ➡️ `READY`。
+4. 调用 MCP 工具 `validate_report` 运行 `audit_validator.py` 代码级完整性硬闸门。
+
+## 2. 人话报告与性价比排期
+1. 报告首行回答三个直观问题：**能不能申请？卡在哪？按什么顺序修？**
+2. **修复排期逻辑**：按照 `imp`（致命度）高 + `fix`（易修度）高的性价比原则排列，优先引导站长解决“既卡审核又容易修”的项。
+
+## 3. 代修闭环
+报告输出后，必须主动询问站长：“**需要我直接帮你改好吗？**”。经同意后，按排期表顺序列出代码修改并直接在本地工程中应用修复。

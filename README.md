@@ -16,6 +16,7 @@
 
 | 你在用的 AI | 适合谁 | 教程 |
 |---|---|---|
+| **Cursor / Windsurf / VS Code** | 使用 AI 编辑器本地边测边改代码 | [docs/mcp-server-guide.md](docs/mcp-server-guide.md) |
 | **Claude 网页版 / 手机 App** | 大多数人,最简单 | [docs/claude-web.md](docs/claude-web.md) |
 | **腾讯 WorkBuddy** | 用微信、想一句话装好的 | [docs/workbuddy.md](docs/workbuddy.md) |
 | **飞书智能伙伴** | 团队在用飞书的 | [docs/feishu.md](docs/feishu.md) |
