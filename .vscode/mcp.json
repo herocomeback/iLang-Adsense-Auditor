@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "ilang-adsense-auditor": {
+      "command": "/Users/wanghuan/Projects/iLang-Adsense-Auditor/run_mcp.sh"
+    }
+  }
+}
