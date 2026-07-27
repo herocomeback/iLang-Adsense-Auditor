@@ -3,7 +3,7 @@
 """
 iLang AdSense Auditor — MCP Server (Enhanced Version)
 =====================================================
-把 iLang AdSense 审核引擎与 29 项完整性闸门（含 73 项细化检测点预查）封装为标准的 MCP 服务。
+把 iLang AdSense 审核引擎与 29 项完整性闸门（含 73 项细化检测点预查与模版生成）封装为标准的 MCP 服务。
 支持在 Cursor、Windsurf、Antigravity、VS Code 等 IDE 中通过 MCP 协议进行项目诊断与代码修复。
 
 依赖安装:
@@ -36,6 +36,46 @@ except ImportError:
 
 # 初始化 MCP 服务
 mcp = FastMCP("iLang AdSense Auditor")
+
+
+@mcp.tool()
+def get_prompt_templates() -> str:
+    """
+    获取常用的 AdSense 诊断提示词模版列表（申请前全量诊断、被拒诊断、修复复审、跨项目诊断）。
+    方便用户直接复制模版并替换 [路径] 或 [URL] 即可使用。
+    """
+    templates = {
+        "title": "📋 iLang AdSense Auditor 常用提示词填空模版",
+        "instructions": "请选择适合你当前场景的模版，复制后替换方括号 [] 中的内容发送即可：",
+        "templates": [
+            {
+                "id": "template_pre_application",
+                "name": "模版 1：申请前全量诊断 + 本地代码直接代修 (最常用)",
+                "copy_text": "用 adsense-auditor 结合本地代码和线上站点帮我做全量合规诊断：\n- 本地路径：[你的本地工程路径, 如 /Users/xxx/Projects/my-app]\n- 线上 URL：[你的线上网址, 如 https://example.com]\n- 阶段：申请前预查\n要求：按性价比给出修复排期，并直接在本地工程中帮我修改代码！"
+            },
+            {
+                "id": "template_post_rejection",
+                "name": "模版 2：被拒后的拒审原因诊断与内容扩充 (低价值内容/网站未准备好)",
+                "copy_text": "我的 AdSense 申请被拒了，请用 adsense-auditor 帮我诊断原因并给出扩充方案：\n- 本地路径：[你的本地工程路径]\n- 线上 URL：[你的线上网址]\n- 拒信原文：[在此粘贴 AdSense 后台拒信原文]\n要求：映射拒信原因到对应规则，给出内容扩充策略并直接在本地帮我修改代码。"
+            },
+            {
+                "id": "template_post_fix",
+                "name": "模版 3：代码修复后的复审验证 (重新提交审核前)",
+                "copy_text": "我已经按建议修改了代码，请用 adsense-auditor 帮我复审是否具备重新提交条件：\n- 本地路径：[你的本地工程路径]\n- 线上 URL：[你的线上网址]\n- 已修复内容：[如：增加了 Privacy 页面和游戏底部的富文本指南]\n要求：重新跑一遍 29 项硬闸门校验，确认阻断项清零并提示最佳重新提交时间。"
+            },
+            {
+                "id": "template_cross_project",
+                "name": "模版 4：跨项目/跨目录诊断 (指定其他工程路径)",
+                "copy_text": "请用 adsense-auditor 帮我诊断本地另一个项目：\n- 目标工程绝对路径：[另一个项目的绝对路径, 如 /Users/xxx/Projects/another-app]\n- 线上 URL：[网址(可选)]\n请抓取该路径静态证据，给出 29 项矢量诊断与性价比修复建议。"
+            },
+            {
+                "id": "template_minimal",
+                "name": "模版 5：极简一句话 Prompt (快捷触发)",
+                "copy_text": "用 adsense-auditor 诊断项目 [你的本地路径]，按性价比给出修复排期，并直接帮我改好本地代码。"
+            }
+        ]
+    }
+    return json.dumps(templates, ensure_ascii=False, indent=2)
 
 
 @mcp.tool()
@@ -147,7 +187,6 @@ def audit_project(project_path: str, site_url: str = "") -> str:
     pii_sensitive_signals = []
     consent_cmp_signals = []
 
-    # 正则规则
     deceptive_btn_re = re.compile(r'(fake-ad|download-btn|play-now-btn|deceptive-cta|start-download)', re.IGNORECASE)
     pii_re = re.compile(r'(social-security|ssn-input|passport-number|credit-card-number)', re.IGNORECASE)
     cmp_re = re.compile(r'(cookiebanner|consentmanager|gdpr-consent|coppa)', re.IGNORECASE)
@@ -161,11 +200,10 @@ def audit_project(project_path: str, site_url: str = "") -> str:
             if any(kw in file_lower for kw in legal_keywords):
                 found_legal_files.append(rel_file)
 
-            # 代码扫描细分风险点 (源码文件 .html, .jsx, .tsx, .astro, .vue 等)
             if file_lower.endswith(('.html', '.jsx', '.tsx', '.astro', '.vue', '.js', '.ts')):
                 try:
                     with open(os.path.join(root, file), 'r', encoding='utf-8', errors='ignore') as f:
-                        file_content = f.read(5000) # 只读前 5KB 提升性能
+                        file_content = f.read(5000)
                         if deceptive_btn_re.search(file_content):
                             deceptive_button_signals.append(rel_file)
                         if pii_re.search(file_content):
@@ -186,7 +224,6 @@ def audit_project(project_path: str, site_url: str = "") -> str:
         "status": "ready_for_llm_evaluation",
         "instructions": (
             "请遵循 SKILL.md 规则，结合下方 detected_evidence 对 29 条 requirement_ids 进行判定。"
-            "同时重点关注子检查点（如 PII、COPPA、假下载按钮、AI 伪造媒体、POST 渲染墙等）。"
             "每个 ID 填入五维向量 AUDIT_JUDGE_v1 (cmp, evd, cer, imp, fix)，"
             "并按照屏障规则推导 site_verdict，然后生成按性价比排序的人话诊断报告。"
         ),
