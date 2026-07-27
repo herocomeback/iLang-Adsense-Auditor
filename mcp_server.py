@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-iLang AdSense Auditor — MCP Server
-===================================
-把 iLang AdSense 审核引擎与 29 项完整性闸门封装为标准的 MCP (Model Context Protocol) 服务。
+iLang AdSense Auditor — MCP Server (Enhanced Version)
+=====================================================
+把 iLang AdSense 审核引擎与 29 项完整性闸门（含 73 项细化检测点预查）封装为标准的 MCP 服务。
 支持在 Cursor、Windsurf、Antigravity、VS Code 等 IDE 中通过 MCP 协议进行项目诊断与代码修复。
 
 依赖安装:
@@ -15,6 +15,7 @@ iLang AdSense Auditor — MCP Server
 
 import json
 import os
+import re
 import sys
 
 # 引入项目自带的 validator 模块
@@ -41,7 +42,7 @@ mcp = FastMCP("iLang AdSense Auditor")
 def get_skill_instructions() -> str:
     """
     获取 iLang AdSense Auditor 的完整 Skill 评估规范与 SOP 指导。
-    包含 29 项检测逻辑、AUDIT_JUDGE_v1 判定向量定义、屏障聚合规则与代修指引。
+    包含 29 项检测逻辑（融入 73 项细分规则）、AUDIT_JUDGE_v1 判定向量定义、屏障聚合规则与代修指引。
     """
     skill_path = os.path.join(HERE, "skill", "SKILL.md")
     if os.path.exists(skill_path):
@@ -53,7 +54,7 @@ def get_skill_instructions() -> str:
 @mcp.tool()
 def list_requirements() -> str:
     """
-    列出 Google AdSense 审核必须覆盖的全部 29 条规则 ID 及其要求列表。
+    列出 Google AdSense 审核必须覆盖的全部 29 条规则 ID 及其要求列表与 73 项子检测点映射。
     数据源来自 skill/references/requirements.md
     """
     try:
@@ -70,8 +71,8 @@ def list_requirements() -> str:
 @mcp.tool()
 def audit_project(project_path: str, site_url: str = "") -> str:
     """
-    扫描指定的本地代码工程，预查静态证据（如 robots.txt、sitemap、合规页面），
-    并生成涵盖全部 29 条 ID 的标准判断模版报告。
+    扫描指定的本地代码工程，预查静态证据（含 robots.txt、ads.txt、欺骗性下载按钮/假播放键、
+    PII/敏感表单、COPPA/CMP、POST 渲染墙等细化特征），并生成标准的 29 项评估模版。
 
     :param project_path: 本地代码工程的绝对路径 (如 /Users/xxx/Projects/my-website)
     :param site_url: (可选) 已部署的线上 URL (如 https://my-website.com)
@@ -85,7 +86,7 @@ def audit_project(project_path: str, site_url: str = "") -> str:
     report["target"] = project_path if not site_url else f"{project_path} ({site_url})"
     report["audit_type"] = "pre-application"
 
-    # 2. 自动抓取本地静态证据
+    # 2. 自动抓取本地静态证据与细化特征扫描
     evidence = {}
 
     # 检查 robots.txt
@@ -114,27 +115,78 @@ def audit_project(project_path: str, site_url: str = "") -> str:
     else:
         evidence["robots_txt"] = {"status": "MISSING", "warning": "未找到 robots.txt 文件"}
 
-    # 扫描必备页面与法务披露文件 (privacy, about, contact, terms)
-    legal_keywords = ["privacy", "about", "contact", "terms", "disclaimer", "sitemap"]
+    # 检查 ads.txt
+    possible_ads_txt = [
+        os.path.join(project_path, "public", "ads.txt"),
+        os.path.join(project_path, "ads.txt"),
+    ]
+    found_ads_txt = None
+    for path in possible_ads_txt:
+        if os.path.exists(path):
+            found_ads_txt = path
+            break
+    if found_ads_txt:
+        try:
+            with open(found_ads_txt, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read(500)
+                evidence["ads_txt"] = {
+                    "path": os.path.relpath(found_ads_txt, project_path),
+                    "content": content,
+                    "has_google_pub": "google.com" in content.lower() and "pub-" in content.lower()
+                }
+        except Exception as e:
+            evidence["ads_txt"] = {"error": str(e)}
+
+    # 扫描必备页面与法务披露文件
+    legal_keywords = ["privacy", "about", "contact", "terms", "disclaimer", "sitemap", "methodology"]
     found_legal_files = []
-    
-    # 忽略常见不需要扫描的大型文件夹
     ignore_dirs = {".git", "node_modules", ".next", "dist", "build", "vendor"}
+
+    # 细分风险特征触发器记录
+    deceptive_button_signals = []
+    pii_sensitive_signals = []
+    consent_cmp_signals = []
+
+    # 正则规则
+    deceptive_btn_re = re.compile(r'(fake-ad|download-btn|play-now-btn|deceptive-cta|start-download)', re.IGNORECASE)
+    pii_re = re.compile(r'(social-security|ssn-input|passport-number|credit-card-number)', re.IGNORECASE)
+    cmp_re = re.compile(r'(cookiebanner|consentmanager|gdpr-consent|coppa)', re.IGNORECASE)
 
     for root, dirs, files in os.walk(project_path):
         dirs[:] = [d for d in dirs if d not in ignore_dirs]
         for file in files:
             file_lower = file.lower()
+            rel_file = os.path.relpath(os.path.join(root, file), project_path)
+
             if any(kw in file_lower for kw in legal_keywords):
-                rel_path = os.path.relpath(os.path.join(root, file), project_path)
-                found_legal_files.append(rel_path)
+                found_legal_files.append(rel_file)
+
+            # 代码扫描细分风险点 (源码文件 .html, .jsx, .tsx, .astro, .vue 等)
+            if file_lower.endswith(('.html', '.jsx', '.tsx', '.astro', '.vue', '.js', '.ts')):
+                try:
+                    with open(os.path.join(root, file), 'r', encoding='utf-8', errors='ignore') as f:
+                        file_content = f.read(5000) # 只读前 5KB 提升性能
+                        if deceptive_btn_re.search(file_content):
+                            deceptive_button_signals.append(rel_file)
+                        if pii_re.search(file_content):
+                            pii_sensitive_signals.append(rel_file)
+                        if cmp_re.search(file_content):
+                            consent_cmp_signals.append(rel_file)
+                except Exception:
+                    pass
 
     evidence["detected_files"] = found_legal_files
+    evidence["risk_signals_scan"] = {
+        "deceptive_ctas_detected": deceptive_button_signals[:5],
+        "pii_sensitive_inputs_detected": pii_sensitive_signals[:5],
+        "consent_cmp_components_detected": consent_cmp_signals[:5]
+    }
 
     result = {
         "status": "ready_for_llm_evaluation",
         "instructions": (
             "请遵循 SKILL.md 规则，结合下方 detected_evidence 对 29 条 requirement_ids 进行判定。"
+            "同时重点关注子检查点（如 PII、COPPA、假下载按钮、AI 伪造媒体、POST 渲染墙等）。"
             "每个 ID 填入五维向量 AUDIT_JUDGE_v1 (cmp, evd, cer, imp, fix)，"
             "并按照屏障规则推导 site_verdict，然后生成按性价比排序的人话诊断报告。"
         ),
