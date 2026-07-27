@@ -73,15 +73,19 @@
 ## 仓库结构
 
 ```
-docs/                          七个平台各一份新手安装教程
+docs/                          各大 AI 平台安装教程及 MCP 黄金提示词模版
+  mcp-server-guide.md          MCP Server 封装与集成指南
+  mcp-prompts-guide.md         【开箱即用】iLang MCP 专属黄金提示词模版集
 skill/
   SKILL.md                     agent skill(触发条件、审核流程、代修规则)
   references/
-    requirements.md            29 条要求清单 + 审核机制背景
+    requirements.md            29 条核心规范 ID + 73 项细化检查点 + 对照映射表
     judgment-schema.md         判断记录 schema + 屏障聚合规则
     usage.md                   调用模板
 validator/
   audit_validator.py           完整性闸门 + schema 校验(纯标准库,零依赖)
+mcp_server.py                  MCP Server 标准接口实现
+run_mcp.sh                     MCP 智能检测与 Docker 一键启动脚本
 examples/
   sample-audit.json            一份通过校验的完整审核报告
 scripts/
