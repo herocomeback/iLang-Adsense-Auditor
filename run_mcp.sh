@@ -27,7 +27,7 @@ else
     echo "⚠️ 提示: 本地 Python 版本低于 3.10 或缺少 mcp 依赖。"
     
     if command -v docker &> /dev/null; then
-        echo "🐳 检测到系统已安装 Docker，切换为容器隔离环境运行 (Python 3.11 内置)..."
+        echo "🐳 检测到系统已安装 Docker，切换为容器隔离环境运行 (Python 3.12 内置)..."
         echo ""
         
         IMAGE_NAME="ilang-adsense-auditor-mcp:latest"
