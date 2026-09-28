@@ -27,12 +27,21 @@ if VALIDATOR_DIR not in sys.path:
 import audit_validator
 
 try:
-    from mcp.server.fastmcp import FastMCP
+    # mcp 2.x
+    from mcp.server.mcpserver import MCPServer as FastMCP
 except ImportError:
-    print("❌ 错误: 未检测到 Python `mcp` 依赖库。", file=sys.stderr)
-    print("👉 请先在终端运行以下命令进行安装:", file=sys.stderr)
-    print("   pip install mcp\n", file=sys.stderr)
-    sys.exit(1)
+    try:
+        # mcp 1.x
+        from mcp.server.fastmcp import FastMCP
+    except ImportError:
+        try:
+            # standalone fastmcp
+            from fastmcp import FastMCP
+        except ImportError:
+            print("❌ 错误: 未检测到 Python `mcp` 依赖库。", file=sys.stderr)
+            print("👉 请先在终端运行以下命令进行安装:", file=sys.stderr)
+            print("   pip install mcp\n", file=sys.stderr)
+            sys.exit(1)
 
 # 初始化 MCP 服务
 mcp = FastMCP("iLang AdSense Auditor")

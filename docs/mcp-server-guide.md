@@ -52,8 +52,10 @@ Exposes project auditing tools to MCP-compatible AI Editors.
 
 import json
 import os
-import sys
-from mcp.server.fastmcp import FastMCP
+try:
+    from mcp.server.mcpserver import MCPServer as FastMCP
+except ImportError:
+    from mcp.server.fastmcp import FastMCP
 
 # 引入项目自带的 validator
 HERE = os.path.dirname(os.path.abspath(__file__))
